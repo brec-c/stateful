@@ -92,9 +92,25 @@ class Stateful extends Emitter
 
 	onStateChange: (from, to) ->
 		# unapply methods in the fromState
+		fromMethods = @__stateChart[from]?.methods
+		@unapplyMethod method for method of fromMethods
+		
 		# apply methods in the toState
+		toMethods = @__stateChart[to]?.methods
+		@applyMethod method, impl for method, impl of toMethods
+		
 		@emit 'stateChange', from, to
 		@emit "stateChange:#{to}", from
+		
+	unapplyMethod: (method) -> 
+		console.log "unapply #{method}"
+		if @[method]?
+			delete @[method]
+			@[method] = null
+		
+	applyMethod: (method, impl) -> 
+		console.log "apply #{method} -> #{impl}"
+		@[method] = impl
 
 	when: (state, callback) ->
 		if @is state then callback()

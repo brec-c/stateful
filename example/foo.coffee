@@ -1,12 +1,12 @@
 Stateful = require '../src/stateful'
 
 class Foo extends Stateful
-
-	@defaultState "EMPTY",
-		transitions: 
-			initial: true
+	
+	@state "EMPTY",
+		transitions:
+			initial: true 
 			enter: "FULL"
-			exit: "EMPTY"
+			exit: "FULL"
 		methods:
 			doTest: (num) ->
 				num = num * 10
@@ -16,13 +16,15 @@ class Foo extends Stateful
 	@state "FULL",
 		transitions:
 			enter: "EMPTY"
-			exit: "FULL"
+			exit: "EMPTY"
 		methods:
 			doTest: (num) ->
 				num = num * 3
 				console.log "num is #{num}"
 				console.log "common code is #{@testCommon()}"
-
+				
+	@buildStateChart()
+				
 	doTest: -> console.log "should not get called.  maybe if super is called?"
 	testCommon: -> return "class Foo has two states: 'EMPTY' and 'FULL'	 we're currently in #{@state}"
 

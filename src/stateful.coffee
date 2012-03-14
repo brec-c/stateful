@@ -16,6 +16,17 @@ class Stateful extends Emitter
 			else if _.isArray(value) then return value
 			else if _.isString(value) then return _.map(value.split(','), (token) -> token.trim())
 			else throw new Error("The '#{state}' state has an invalid configuration for its #{direction} states")
+
+		# Interpret the state configuration and update the class's statechart.
+		transitions = config.transitions
+		@::__stateChart[stateName] =
+			enter:   interpretDirection(stateName, transitions, 'enter')
+			exit:    interpretDirection(stateName, transitions, 'exit')
+			initial: transitions.initial ? false
+			methods: config.methods or {}
+
+	@buildStateChart: ->
+		throw new Error "Must add states inorder to build a StateChart" unless @::__stateChart?
 		
 		validateDirection = (state, config, direction) =>
 			reverse = if direction is 'enter' then 'exit' else 'enter'
@@ -26,26 +37,17 @@ class Stateful extends Emitter
 				unless _.contains(otherConfig[reverse], state)
 					throw new Error("The '#{otherState}' state is declared as an #{direction} state for '#{state}', but '#{state}' is not an #{reverse} state for '#{otherState}'")
 		
-		# Interpret the state configuration and update the class's statechart.
-		transitions = config.transitions
-		@::__stateChart[stateName] =
-			enter:   interpretDirection(stateName, transitions, 'enter')
-			exit:    interpretDirection(stateName, transitions, 'exit')
-			initial: transitions.initial ? false
-		
 		# Validate the state chart to ensure each declared state has valid entrances and exits,
 		# and that only one state is defined as the default state.
 		@::__initialState = null
 		for state, config of @::__stateChart
 			do (state, config) =>
-				transitions = config.transitions
-				if transitions.initial is true
+				if config.initial is true
 					if @::__initialState?
 						throw new Error("Both the '#{@::__initialState}' and '#{state}' states are defined as initial states")
 					@::__initialState = state
-				validateDirection(state, transitions, 'enter')
-				validateDirection(state, transitions, 'exit')
-
+				validateDirection(state, config, 'enter')
+				validateDirection(state, config, 'exit')
 
 	constructor: (config) ->
 		super(config)
@@ -72,8 +74,8 @@ class Stateful extends Emitter
 		@__state = to
 
 		# build something like this so we can reuse this
-		handler = "onState#{__rubicon.pascalCase to}"
-		@[handler](from) if @[handler]?
+		# handler = "onState#{__rubicon.pascalCase to}"
+		# @[handler](from) if @[handler]?
 
 		@onStateChange(from, to)
 
@@ -89,6 +91,8 @@ class Stateful extends Emitter
 		return _.contains(fromConfig.exit, to) and _.contains(toConfig.enter, from)
 
 	onStateChange: (from, to) ->
+		# unapply methods in the fromState
+		# apply methods in the toState
 		@emit 'stateChange', from, to
 		@emit "stateChange:#{to}", from
 

@@ -66,7 +66,7 @@ class Stateful extends Emitter
 		return if from is to
 
 		if from isnt undefined and not @isValidStateChange(from, to)
-			throw new Error "Bad state change: can't change from the '#{@state}' state to '#{to}' state on #{@}"
+			throw new Error "Bad state change: can't change from the '#{@state}' state to '#{to}' state on #{@constructor.name}"
 
 		# Could introduce an extension point here that would allow child class to do a check before the state changes
 		# and if the callback returns true would abort the state change.

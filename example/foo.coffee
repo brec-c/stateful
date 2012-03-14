@@ -50,4 +50,9 @@ foo.doTest val
 foo.state = "HALFWAY"
 foo.doTest val
 
+try 
+	foo.state = "FULL"
+catch e
+	console.log "Caught: #{e}"
+
 console.log "all done"

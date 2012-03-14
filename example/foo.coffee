@@ -5,18 +5,24 @@ class Foo extends Stateful
 	@state "EMPTY",
 		transitions:
 			initial: true 
-			enter: "FULL"
+			enter: "HALFWAY"
 			exit: "FULL"
 		methods:
 			doTest: (num) ->
 				num = num * 10
 				console.log "num is #{num}"
 				console.log "common code is #{@testCommon()}"
+				
+	@state "HALFWAY",
+		transitions:
+			enter: "FULL"
+			exit: "EMPTY"
+		methods: require './halfway'
 
 	@state "FULL",
 		transitions:
 			enter: "EMPTY"
-			exit: "EMPTY"
+			exit: "HALFWAY"
 		methods:
 			doTest: (num) ->
 				num = num * 3
@@ -39,6 +45,9 @@ console.log "running foo.doTest with value: #{val}"
 foo.doTest val
 
 foo.state = "FULL"
+foo.doTest val
+
+foo.state = "HALFWAY"
 foo.doTest val
 
 console.log "all done"

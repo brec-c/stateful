@@ -1,5 +1,5 @@
 {
-  "name": "Stateful",
+  "name": "stateful",
   "description": "Stateful base class for both browser and NodeJS environments",
   "version": "0.0.1",
   "repository": {

@@ -1,3 +1,5 @@
-#Not Yet working
+#Stateful Class Design
 
-## check back in soon
+## Install
+
+npm install stateful

@@ -1,13 +1,13 @@
 Emitter = require 'common-emitter'
 _       = require 'underscore'
 
-class Stateful extends Emitter
+class Graph extends Emitter
 
 	Object.defineProperty @prototype, 'state',
 		get: -> @__state
 		set: (state) -> @changeState(state)
 
-	@state: (stateName, config) ->
+	@addState: (stateName, config) ->
 		@::__stateChart = {} unless @::__stateChart?
 		
 		interpretDirection = (state, config, direction) =>
@@ -118,4 +118,11 @@ class Stateful extends Emitter
 			@once "stateChange:#{state}", callback
 
 
-module.exports = Stateful
+exports.StateChartGraph = Graph
+
+class Tree extends Emitter
+
+	@addState: (stateNameOrTree, config) ->
+		console.log "implement me"
+	
+exports.StateChartTree = Tree

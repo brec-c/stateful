@@ -1,8 +1,8 @@
-Stateful = require '../src/stateful'
+{StateChartGraph} = require '../src/stateful'
 
-class Foo extends Stateful
+class Foo extends StateChartGraph
 	
-	@state "EMPTY",
+	@addState "EMPTY",
 		transitions:
 			initial: true 
 			enter: "HALFWAY"
@@ -13,13 +13,13 @@ class Foo extends Stateful
 				console.log "num is #{num}"
 				console.log "common code is #{@testCommon()}"
 				
-	@state "HALFWAY",
+	@addState "HALFWAY",
 		transitions:
 			enter: "FULL"
 			exit: "EMPTY"
 		methods: require './halfway'
 
-	@state "FULL",
+	@addState "FULL",
 		transitions:
 			enter: "EMPTY"
 			exit: "HALFWAY"

@@ -1,11 +1,17 @@
 Emitter = require 'common-emitter'
 _       = require 'underscore'
 
-class Graph extends Emitter
+# NOTE: I'm considering this deprecated in favor of the new Tree implementation
+# (assuming I can get that to work!)
+
+class Stateful extends Emitter
 
 	Object.defineProperty @prototype, 'state',
 		get: -> @__state
 		set: (state) -> @changeState(state)
+		
+	Object.defineProperty @prototype, 'numStates', get: -> _.size @__stateChart
+	Object.defineProperty @prototype, 'listStates',	get: -> _.keys(@__stateChart).join ', '
 
 	@addState: (stateName, config) ->
 		@::__stateChart = {} unless @::__stateChart?
@@ -49,8 +55,7 @@ class Graph extends Emitter
 				validateDirection(state, config, 'enter')
 				validateDirection(state, config, 'exit')
 
-	constructor: (config) ->
-		super(config)
+	constructor: ->
 		@state = @__initialState
 
 	is: (state) ->
@@ -118,11 +123,4 @@ class Graph extends Emitter
 			@once "stateChange:#{state}", callback
 
 
-exports.StateChartGraph = Graph
-
-class Tree extends Emitter
-
-	@addState: (stateNameOrTree, config) ->
-		console.log "implement me"
-	
-exports.StateChartTree = Tree
+module.exports = Stateful

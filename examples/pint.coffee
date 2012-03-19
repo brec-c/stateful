@@ -1,6 +1,6 @@
-{StateChartGraph} = require '../src/stateful'
+Stateful = require '../src/stateful'
 
-class Foo extends StateChartGraph
+class PintGlass extends Stateful
 	
 	@addState "EMPTY",
 		transitions:
@@ -32,9 +32,9 @@ class Foo extends StateChartGraph
 	@buildStateChart()
 				
 	doTest: -> console.log "should not get called.  maybe if super is called?"
-	testCommon: -> return "class Foo has two states: 'EMPTY' and 'FULL'	 we're currently in #{@state}"
+	testCommon: -> return "class Foo has #{@numStates} states: #{@listStates}.  we're currently in #{@state}"
 
-foo = new Foo
+foo = new PintGlass
 
 foo.on "stateChange", (from, to) -> console.log "state was #{from}, state is #{to}"
 

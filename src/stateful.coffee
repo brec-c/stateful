@@ -58,6 +58,8 @@ class Stateful extends Emitter
 	constructor: ->
 		@state = @__initialState
 
+	dispose: -> @removeAllListeners()
+
 	is: (state) ->
 		unless @isValidState state then throw new Error "State: #{state} doesn't exist for #{@}."
 		@state is state
@@ -111,9 +113,14 @@ class Stateful extends Emitter
 		console.log "unapply #{method}"
 		if @[method]?
 			delete @[method]
-			@[method] = null
+
+		if @["_#{method}"]?
+			@[method] = @["_#{method}"]
 		
 	applyMethod: (method, impl) -> 
+		if @[method]?
+			@["_#{method}"] = @[method]
+
 		console.log "apply #{method} -> #{impl}"
 		@[method] = impl
 

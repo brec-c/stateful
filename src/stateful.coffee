@@ -1,17 +1,16 @@
 Emitter = require 'common-emitter'
 _       = require 'underscore'
 
-# NOTE: I'm considering this deprecated in favor of the new Tree implementation
-# (assuming I can get that to work!)
-
 class Stateful extends Emitter
 
-	Object.defineProperty @prototype, 'state',
+	@define: (name, config) -> Object.defineProperty @::, name, config
+
+	@define 'state',
 		get: -> @__state
 		set: (state) -> @changeState(state)
 		
-	Object.defineProperty @prototype, 'numStates', get: -> _.size @__stateChart
-	Object.defineProperty @prototype, 'listStates',	get: -> _.keys(@__stateChart).join ', '
+	@define 'numStates', get: -> _.size @__stateChart
+	@define 'listStates',	get: -> _.keys(@__stateChart).join ', '
 
 	@addState: (stateName, config) ->
 		@::__stateChart = {} unless @::__stateChart?
@@ -81,10 +80,12 @@ class Stateful extends Emitter
 		@__state = to
 
 		# build something like this so we can reuse this
-		# handler = "onState#{__rubicon.pascalCase to}"
+		# handler = "onState#{@_toPascalCase to}"
 		# @[handler](from) if @[handler]?
 
 		@onStateChange(from, to)
+
+	pascalCase: (str) -> return str[0].toUpperCase() + str.substr(1)
 
 	isValidState: (state) -> @__stateChart[state]?
 

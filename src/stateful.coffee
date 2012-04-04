@@ -111,7 +111,6 @@ class Stateful extends Emitter
 		@emit "stateChange:#{to}", from
 		
 	unapplyMethod: (method) -> 
-		console.log "unapply #{method}"
 		if @[method]?
 			delete @[method]
 
@@ -122,7 +121,6 @@ class Stateful extends Emitter
 		if @[method]?
 			@["_#{method}"] = @[method]
 
-		console.log "apply #{method} -> #{impl}"
 		@[method] = impl
 
 	when: (state, callback) ->

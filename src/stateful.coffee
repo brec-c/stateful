@@ -74,14 +74,10 @@ class Stateful extends Emitter
 		if from isnt undefined and not @isValidStateChange(from, to)
 			throw new Error "Bad state change: can't change from the '#{@state}' state to '#{to}' state on #{@constructor.name}"
 
-		# Could introduce an extension point here that would allow child class to do a check before the state changes
-		# and if the callback returns true would abort the state change.
-
 		@__state = to
 
-		# build something like this so we can reuse this
-		# handler = "onState#{@_toPascalCase to}"
-		# @[handler](from) if @[handler]?
+		handler = "onState#{@pascalCase to}"
+		@[handler](from) if @[handler]?
 
 		@onStateChange(from, to)
 
@@ -99,28 +95,21 @@ class Stateful extends Emitter
 		return _.contains(fromConfig.exit, to) and _.contains(toConfig.enter, from)
 
 	onStateChange: (from, to) ->
-		# unapply methods in the fromState
-		fromMethods = @__stateChart[from]?.methods
+		fromMethods = @__stateChart[from]?.methods        		# unapply methods in the fromState
 		@unapplyMethod method for method of fromMethods
 		
-		# apply methods in the toState
-		toMethods = @__stateChart[to]?.methods
+		toMethods = @__stateChart[to]?.methods                  # apply methods in the toState
 		@applyMethod method, impl for method, impl of toMethods
 		
 		@emit 'stateChange', from, to
 		@emit "stateChange:#{to}", from
 		
 	unapplyMethod: (method) -> 
-		if @[method]?
-			delete @[method]
-
-		if @["_#{method}"]?
-			@[method] = @["_#{method}"]
+		if @[method]? then delete @[method]
+		if @["_#{method}"]? then @[method] = @["_#{method}"]
 		
 	applyMethod: (method, impl) -> 
-		if @[method]?
-			@["_#{method}"] = @[method]
-
+		if @[method]? then @["_#{method}"] = @[method]
 		@[method] = impl
 
 	when: (state, callback) ->

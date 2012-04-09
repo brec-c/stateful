@@ -10,18 +10,21 @@ class Stateful extends Emitter
 	@StateChart (chart) ->
 		@::__statechart = {} unless @::__statechart?
 
-		addStackedStates = (statesObj) ->
+		addPaths = (statesObj, parent) ->
 			for name,defn of statesObj
 				@::__statechart[name] =
-					name   : name
-					actions: defn.actions
-					methods: defn.methods
+					name       : name
+					transitions: defn.transitions
+					methods    : defn.methods
+					parent     : parent
 			
 				# TODO: validate contents for state
 			
-				addStackedStates defn.states
+				addPaths defn.paths
 
-		addStackedStates chart
+		addPaths paths
+		
+		# TODO: confirm integrity of chart, makes sure all entry / exit points are accounted for
 		
 	constructor: (config) ->
 		return unless @__statechart?
@@ -35,14 +38,15 @@ class Stateful extends Emitter
 		
 	dispose: -> @removeAllListeners()
 
-
 	setState: (stateObj) ->
+		# validate state change
+		
 		oldState = @__state
 		@__state = stateObj
 		
 		@removeMethods oldState.methods
 		@addMethods @__state.methods
-		@buildActions @__state.actions
+		@buildTransitions @__state.transitions
 	
 	removeMethods: (methods) ->
 		return unless methods?
@@ -56,21 +60,19 @@ class Stateful extends Emitter
 			@["_#{method}"] = @[method] if @[method]?
 			@[method] = impl
 	
-	buildActions: (actions) ->
-		for action in actions
-			destination = @pathResolver action.destination
-			chgMethod = @[action.method]
-			@[action.method] = =>
+	buildTransitions: (transitions) ->
+		for t in transitions
+			destination = @pathResolver t.destination
+			chgMethod = @[t.method]
+			@[t.method] = =>
 				result = chgMethod.apply @, arguments
 				@setState = destination unless result is true
 	
-	changeState: (statePath) ->
-		# TODO: suppport absolute and relative pathing
-		# does path exist from the current state? 
-		# is this the first path?
-		unless @__state?
-
-		# change old methods out
-		# put new methods in
+	pathResolver: (path) ->
+		steps = path.split '/'
+		isRelative = path.indexOf '..' is 0
 		
-		# wrap actions in decision functions
+		for step in steps
+			
+	
+module.exports = Stateful

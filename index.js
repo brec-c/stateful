@@ -1,1 +1,1 @@
-module.exports = require('./lib/stateful');
+module.exports = require('./lib/statechart');

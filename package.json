@@ -1,6 +1,6 @@
 {
 	"name"                 : "stateful"
-	,"description"         : "Common stateful base class for both browser and NodeJS environments."
+	,"description"         : "Common, stateful base class for both browser and NodeJS environments."
 	,"homepage"            : "http://not-up-yet.com"
 	,"keywords"            : ["statechart","events","server","client"]
 	,"author"              : "brec-c"
@@ -8,7 +8,7 @@
 	,"licenses"            : [{"type":"MIT","url":"https://github.com/brec-c/stateful/blob/master/LICENSE"}]
 	,"repository"          : {"type":"git", "url": "git://github.com/brec-c/stateful.git"}
 	,"main"                : "index.js"
-	,"version"             : "0.0.2"
+	,"version"             : "0.0.3"
 	,"dependencies"        : {
 		"coffee-script"    : "~1.2.0"
 		,"common-emitter"  : ""

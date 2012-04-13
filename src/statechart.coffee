@@ -33,11 +33,14 @@ class Stateful extends Emitter
 		
 		# TODO: confirm integrity of chart, makes sure all entry / exit points are accounted for
 		
-	constructor: (config) ->
+	constructor: (config={}) ->
 		return unless @statechart?
 		
-		stateName = _.keys(@statechart)[0]
-		@setState @statechart[stateName]
+		if config.defaultState
+			@setState @pathResolver config.defaultState
+		else
+			stateName = _.keys(@statechart)[0]
+			@setState @statechart[stateName]
 		
 	dispose: -> @removeAllListeners()
 

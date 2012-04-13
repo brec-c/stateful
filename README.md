@@ -10,7 +10,7 @@ npm install stateful
 
 Look at this example:
 
-    Statechart = require '../src/statechart'
+    Statechart = require 'stateful'
 
     class BeerMug extends Statechart
 	

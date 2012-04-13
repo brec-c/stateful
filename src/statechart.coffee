@@ -5,48 +5,59 @@ class Stateful extends Emitter
 	
 	@define: (name, config) -> Object.defineProperty @::, name, config
 
-	@define 'state', get: -> @__state.name
+	@define 'statechart', get: -> @__statechart
+	@define 'stateName',  get: -> @__state.name
+	@define 'state',      
+		get: -> @__state
+		set: (obj) -> @__state = obj
+	
+	@Success: -> false
+	@Failure: -> true
 			
-	@StateChart (chart) ->
-		@::__statechart = {} unless @::__statechart?
+	@StateChart: (chart) ->
+		@::__statechart = {}
 
 		addPaths = (statesObj, parent) ->
-			for name,defn of statesObj
-				@::__statechart[name] =
+			for name, defn of statesObj
+				stateObj = 
 					name       : name
 					transitions: defn.transitions
 					methods    : defn.methods
-					parent     : parent
-			
-				# TODO: validate contents for state
-			
-				addPaths defn.paths
+					paths      : {}
 
-		addPaths paths
+				parent[name] = stateObj
+							
+				addPaths defn.paths, stateObj.paths
+
+		addPaths chart, @::__statechart
 		
 		# TODO: confirm integrity of chart, makes sure all entry / exit points are accounted for
 		
 	constructor: (config) ->
-		return unless @__statechart?
+		return unless @statechart?
 		
-		if config.defaultState or @defaultState
-			state = @__statechart[config.defaultState or @defaultState]
-		else
-			state = _.keys(@__statechart)[0]
-			
-		@setState tate
+		stateName = _.keys(@statechart)[0]
+		@setState @statechart[stateName]
 		
 	dispose: -> @removeAllListeners()
 
 	setState: (stateObj) ->
-		# validate state change
+		# TODO validate state change
+
+		if @state
+			oldState = @state
+			@removeMethods oldState.methods
+
+		@state = stateObj
+		@addMethods @state.methods
+		@buildTransitions @state.transitions
 		
-		oldState = @__state
-		@__state = stateObj
+		@onStateChange @state, oldState
 		
-		@removeMethods oldState.methods
-		@addMethods @__state.methods
-		@buildTransitions @__state.transitions
+		@emit 'statechange', @stateName, oldState?.name
+		@emit "statechange:#{@stateName}", oldState?.name
+		
+	onStateChange: (newStateObj, oldStateObj) ->
 	
 	removeMethods: (methods) ->
 		return unless methods?
@@ -63,16 +74,20 @@ class Stateful extends Emitter
 	buildTransitions: (transitions) ->
 		for t in transitions
 			destination = @pathResolver t.destination
-			chgMethod = @[t.method]
-			@[t.method] = =>
-				result = chgMethod.apply @, arguments
-				@setState = destination unless result is true
+			chgMethod = @[t.action]
+			@[t.action] = =>
+				dontTransition = (chgMethod.apply @, arguments)()
+				
+				unless dontTransition
+					@setState destination
 	
 	pathResolver: (path) ->
 		steps = path.split '/'
-		isRelative = path.indexOf '..' is 0
 		
+		target = paths: @statechart
 		for step in steps
+			target = target.paths[step]
 			
+		return target
 	
 module.exports = Stateful

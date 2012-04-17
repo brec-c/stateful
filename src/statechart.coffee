@@ -24,6 +24,7 @@ class Stateful extends Emitter
 					transitions: defn.transitions
 					methods    : defn.methods
 					paths      : {}
+					parent     : parent
 
 				parent[name] = stateObj
 							
@@ -49,7 +50,9 @@ class Stateful extends Emitter
 
 		if @state
 			oldState = @state
-			@removeMethods oldState.methods
+			# only remove if oldState isnt an ancestor of the new state
+			if @isDescendantState stateObj
+				@removeMethods oldState.methods
 
 		@state = stateObj
 		@addMethods @state.methods
@@ -59,7 +62,12 @@ class Stateful extends Emitter
 		
 		@emit 'statechange', @stateName, oldState?.name
 		@emit "statechange:#{@stateName}", oldState?.name
-		
+	
+	isDescendantState: (state) ->
+		unless state.parent? then return false
+		if state.parent is @state then return true
+		@isDescendantState state.parent
+
 	onStateChange: (newStateObj, oldStateObj) ->
 	
 	removeMethods: (methods) ->

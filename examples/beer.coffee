@@ -23,8 +23,8 @@ class BeerMug extends Statechart
 							console.log "chug, chug, chug..."
 							Statechart.Success
 
-	onStateChange: ->
-		console.log "I'm now in state: #{@stateName}."
+
+	onStateChange: -> console.log "I'm now in state: #{@stateName}."
 		
 
 mug = new BeerMug

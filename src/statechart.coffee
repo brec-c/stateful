@@ -11,8 +11,8 @@ class Stateful extends Emitter
 		get: -> @__state
 		set: (obj) -> @__state = obj
 	
-	@Success: -> false
-	@Failure: -> true
+	@Success: false
+	@Failure: true
 			
 	@StateChart: (chart) ->
 		@::__statechart = {}
@@ -83,18 +83,23 @@ class Stateful extends Emitter
 			@[method] = impl
 	
 	buildTransitions: (transitions) ->
-		for t in transitions
+		_.each transitions, (t) =>
 			destination = @pathResolver t.destination
 			chgMethod = @[t.action]
 			@[t.action] = =>
-				dontTransition = (chgMethod.apply @, arguments)()
+				dontTransition = (chgMethod.apply @, arguments)
 				
 				unless dontTransition
 					@setState destination
+
+				return dontTransition
 	
 	pathResolver: (path) ->
+		# check if path is direct descendant current state
+		if @state.paths[path]? then return @state.paths[path]
+
+		# start from top
 		steps = path.split '/'
-		
 		target = paths: @statechart
 		for step in steps
 			target = target.paths[step]

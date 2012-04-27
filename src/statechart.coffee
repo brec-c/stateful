@@ -80,12 +80,12 @@ class Stateful extends Emitter
 		return unless methods?
 		for method of methods
 			delete @[method] if @[method]?
-			@[method] = @["_#{method}"] if @["_#{method}"]?
+			@[method] = @["super_#{method}"] if @["super_#{method}"]?
 	
 	addMethods: (methods) ->
 		return unless methods?
 		for method, impl of methods
-			@["_#{method}"] = @[method] if @[method]?
+			@["super_#{method}"] = @[method] if @[method]?
 			@[method] = impl
 	
 	buildTransitions: (transitions) ->

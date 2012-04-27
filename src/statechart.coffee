@@ -9,7 +9,7 @@ class Stateful extends Emitter
 	@define 'stateName',  get: -> @__state.name
 	@define 'state',      
 		get: -> @__state
-		set: (obj) -> @__state = obj
+		set: (obj) -> @setState obj
 	
 	@Success: false
 	@Failure: true
@@ -32,7 +32,11 @@ class Stateful extends Emitter
 
 		addPaths chart, @::__statechart
 		
-		# TODO: confirm integrity of chart, makes sure all entry / exit points are accounted for
+		#
+		# TODO: confirm integrity of chart:
+		# - makes sure all entry / exit points are accounted for
+		# - make sure paths are valid
+		#
 		
 	constructor: (config={}) ->
 		return unless @statechart?
@@ -45,7 +49,9 @@ class Stateful extends Emitter
 		
 	dispose: -> @removeAllListeners()
 
-	setState: (stateObj) ->
+	setState: (nameOrObj) ->
+		stateObj = if typeof nameOrObj is 'string' then @pathResolver nameOrObj else nameOrObj
+
 		# TODO validate state change
 
 		if @state
@@ -54,7 +60,7 @@ class Stateful extends Emitter
 			if @isDescendantState stateObj
 				@removeMethods oldState.methods
 
-		@state = stateObj
+		@__state = stateObj
 		@addMethods @state.methods
 		@buildTransitions @state.transitions
 		
@@ -88,10 +94,7 @@ class Stateful extends Emitter
 			chgMethod = @[t.action]
 			@[t.action] = =>
 				dontTransition = (chgMethod.apply @, arguments)
-				
-				unless dontTransition
-					@setState destination
-
+				unless dontTransition then @setState destination
 				return dontTransition
 	
 	pathResolver: (path) ->
@@ -101,8 +104,7 @@ class Stateful extends Emitter
 		# start from top
 		steps = path.split '/'
 		target = paths: @statechart
-		for step in steps
-			target = target.paths[step]
+		target = target.paths[step] for step in steps
 			
 		return target
 	

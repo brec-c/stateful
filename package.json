@@ -11,7 +11,7 @@
 	,"version"             : "0.0.3"
 	,"dependencies"        : {
 		"coffee-script"    : "~1.2.0"
-		,"common-emitter"  : ""
+		,"eventemitter2"   : ""
 		,"underscore"      : ""
 	}
 	,"devDependencies"     : {}

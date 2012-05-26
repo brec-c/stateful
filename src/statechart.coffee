@@ -1,7 +1,7 @@
-Emitter = require 'common-emitter'
-_       = require 'underscore'
+{EventEmitter2} = require 'eventemitter2'
+_               = require 'underscore'
 
-class Stateful extends Emitter
+class Stateful extends EventEmitter2
 	
 	@define: (name, config) -> Object.defineProperty @::, name, config
 
@@ -39,6 +39,8 @@ class Stateful extends Emitter
 		#
 		
 	constructor: (config={}) ->
+		super _.extend wildcard: true, config
+		
 		return unless @statechart?
 		
 		if config.defaultState
